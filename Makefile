@@ -115,6 +115,8 @@ OBJS = $(OBJDIR)/head.o \
 	$(OBJDIR)/GL/tex.o \
 	$(OBJDIR)/GL/viewport.o \
 	\
+	$(OBJDIR)/game.o \
+	\
 	$(OBJDIR)/main.o
 
 
