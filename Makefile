@@ -117,6 +117,8 @@ OBJS = $(OBJDIR)/head.o \
 	\
 	$(OBJDIR)/game.o \
 	\
+	$(OBJDIR)/ent/player.o \
+	\
 	$(OBJDIR)/main.o
 
 

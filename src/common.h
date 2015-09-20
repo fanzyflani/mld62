@@ -79,5 +79,9 @@ void joy_init(void);
 
 // vec
 
+// ent/player
+void ent_player_draw(void);
+
+// main?
 extern volatile int screen_buffer;
 

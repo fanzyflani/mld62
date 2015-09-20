@@ -4,73 +4,9 @@ extern volatile int got_vblank;
 extern int waiting_for_vblank;
 
 fixed tri_ang = 0;
-GLuint tri_dl0 = 0;
 GLuint tri_tex0 = (GLuint)-1;
 GLuint pal_tex0 = (GLuint)-1;
 int tmr_dmaend = 0;
-
-static void draw_spinner(void)
-{
-	int i;
-	int q = 200;
-
-	GLfixed gradual = 0x60000/q;
-	for(i = 0; i < q; i++)
-	{
-		glRotatex(-gradual*3, 0, 0, 0x10000);
-		glRotatex(gradual/6, 0, 0x1000, 0);
-		glRotatex(gradual, 0x1000, 0, 0x1000);
-		glPushMatrix();
-		glRotatex((((1<<16)*i)/q), 0, 0, 0x1000);
-		glTranslatex(0x80, 0, 0);
-		/*
-		glRotatex(-tri_ang*3, 0, 0, 0x10000);
-		glRotatex(tri_ang/6, 0, 0x1000, 0);
-		glRotatex(tri_ang/2, 0, 0, 0x1000);
-		*/
-		glBegin(GL_TRIANGLES);
-			glTexCoord2i(0, 0);
-			glColor3ub(0x7F, 0x00, 0x00);
-			glVertex3x(-50, -50,  0);
-			glTexCoord2i(31, 0);
-			glColor3ub(0x7F, 0x7F, 0x00);
-			glVertex3x( 50, -50,  0);
-			glTexCoord2i(0, 31);
-			glColor3ub(0x7F, 0x00, 0x7F);
-			glVertex3x(  0,  50,  0);
-
-			glTexCoord2i(31, 31);
-			glColor3ub(0x00, 0x7F, 0x00);
-			glVertex3x(  0,   0, 70);
-			glColor3ub(0x7F, 0x7F, 0x00);
-			glTexCoord2i(31, 0);
-			glVertex3x( 50, -50,  0);
-			glTexCoord2i(0, 0);
-			glColor3ub(0x00, 0x7F, 0x7F);
-			glVertex3x(-50, -50,  0);
-
-			glTexCoord2i(31, 31);
-			glColor3ub(0x00, 0x00, 0x7F);
-			glVertex3x(  0,   0, 70);
-			glTexCoord2i(0, 0);
-			glVertex3x(-50, -50,  0);
-			glTexCoord2i(0, 31);
-			glColor3ub(0x00, 0x7F, 0x7F);
-			glVertex3x(  0,  50,  0);
-
-			glTexCoord2i(31, 31);
-			glColor3ub(0x7F, 0x7F, 0x7F);
-			glVertex3x(  0,   0, 70);
-			glTexCoord2i(0, 31);
-			glVertex3x(  0,  50,  0);
-			glTexCoord2i(31, 0);
-			glColor3ub(0x00, 0x00, 0x00);
-			glVertex3x( 50, -50,  0);
-		glEnd();
-		glPopMatrix();
-	}
-}
-
 
 void update_frame(void)
 {
@@ -102,26 +38,14 @@ void update_frame(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatex(0, 0, 0x100);
-	glRotatex(tri_ang, 0, 0, 0x1000);
-	glRotatex(tri_ang/6, 0, 0x1000, 0);
+	glRotatex(-tri_ang/6, 0x1000, 0, 0);
+	glRotatex(tri_ang, 0, 0x1000, 0);
 	//glRotatex(0, 0, 0x10000, 0);
 
-	// Draw spinny simplex
-	//gpu_send_control_gp1(0x01000000);
+	// Draw test meshes
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tri_tex0);
-#if 1
-	if(tri_dl0 == 0)
-	{
-		tri_dl0 = glGenLists(1);
-		glNewList(tri_dl0, GL_COMPILE);
-		draw_spinner();
-		glEndList();
-	}
-	glCallList(tri_dl0);
-#else
-	draw_spinner();
-#endif
+	ent_player_draw();
 	glDisable(GL_TEXTURE_2D);
 
 	tri_ang += FM_PI*2/180/2;
@@ -246,7 +170,8 @@ void game_init_assets(void)
 		for(x = 0; x < 64; x++)
 		{
 			int v = x^y;
-			if(v>15) v = 31-v;
+			v = (v>>1) + (v&1);
+			if((v&16)!=0) v = (~v)&15;
 			xor_pattern[y*32 + (x>>1)] |= v<<((x&1)*4);
 		}
 
